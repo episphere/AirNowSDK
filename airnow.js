@@ -2,14 +2,26 @@
 export let airnow = {
     apikey: localStorage.AIRNOW_API_KEY ,
 
-    currentBase:"https://www.airnowapi.org/aq/observation/zipCode/current/",
+    base:"https://www.airnowapi.org/aq/observation/",
 
-    currentObservationByLatLong: async function(lattitude,longitude){
-        let url = `${this.currentBase}?format=application/json&latitude=${lattitude}&longitude=${longitude}`
+    currentObservationByLatLong: async function(latitude,longitude,distance=25){
+        let url = `${this.base}/latLong/current/?format=application/json&latitude=${latitude}&longitude=${longitude}&distance=${distance}&API_KEY=${this.apikey}`
         return await this.callGetAPI(url)
     },
     currentObservationByZipCode: async function(zipCode,distance=25){
-        let url = `${this.currentBase}?format=application/json&zipCode=${zipCode}&distance=${distance}&API_KEY=${this.apikey}`
+        let url = `${this.base}zipCode/current/?format=application/json&zipCode=${zipCode}&distance=${distance}&API_KEY=${this.apikey}`
+        return await this.callGetAPI(url)
+    },
+    historicObservationByLatLong: async function(latitude,longitude,date,distance=25){
+        const dateRegex=/^\d{4}-\d{2}-\d{2}$/
+        if (!dateRegex.test(date)) throw new Error("Please format the date as YYYY-MM-DD")
+        let url = `${this.base}latLong/historical/?format=application/json&latitude=${latitude}&longitude=${longitude}&date=${date}T00-0000&distance=${distance}&API_KEY=${this.apikey}`
+        return await this.callGetAPI(url)
+    },
+    historicObservationByZipCode: async function(zipCode,date,distance=25){
+        const dateRegex=/^\d{4}-\d{2}-\d{2}$/
+        if (!dateRegex.test(date)) throw new Error("Please format the date as YYYY-MM-DD")
+        let url = `${this.base}zipCode/historical/?format=application/json&zipCode=${zipCode}&date=${date}T00-0000&distance=${distance}&API_KEY=${this.apikey}`
         return await this.callGetAPI(url)
     },
     callGetAPI: async function(url){
